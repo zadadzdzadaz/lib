@@ -503,10 +503,12 @@
             })
 
             function library:toggle_ui(state)
-                if state ~= nil then
-                    library.gui.Enabled = state
-                else
-                    library.gui.Enabled = not library.gui.Enabled
+                if library.mainwindow then
+                    if state ~= nil then
+                        library.mainwindow.Visible = state
+                    else
+                        library.mainwindow.Visible = not library.mainwindow.Visible
+                    end
                 end
             end
 
@@ -520,6 +522,17 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(255, 255, 255)
                 }); library:resizify(a); library:draggify(a); a.Position = dim2(0, a.AbsolutePosition.Y, 0, a.AbsolutePosition.Y)
+
+                -- Visual Polish: UIStroke
+                local stroke = library:create("UIStroke", {
+                    Parent = a,
+                    Color = themes.preset.accent,
+                    Thickness = 1,
+                    Transparency = 0.5
+                })
+                -- Ideally we want this stroke to update with theme, so we can hack it into apply_theme or just manual update
+                -- For now, let's leave it static or simple.
+
 
                 library:create("UICorner", {
                     Parent = a,
@@ -644,6 +657,8 @@
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(46, 46, 46)
                 });	library:apply_theme(b, "c", "BackgroundColor3"); cfg.inline = b
+
+                library.mainwindow = a -- Store reference for toggling
             -- 
 
             -- Keybind list
@@ -1542,11 +1557,14 @@
                         });
 
                         if cfg.keybind then 
+                            -- Initialize default mode
+                            cfg.keybind_opts = {mode = "Toggle", key = cfg.keybind} 
+
                             local keybind_button = library:create("TextButton", {
                                 FontFace = library.font;
                                 TextColor3 = rgb(120, 120, 120);
                                 BorderColor3 = rgb(0, 0, 0);
-                                Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""));
+                                Text = "[".. (tostring(cfg.keybind):gsub("Enum.KeyCode.", "")) .."] (Toggle)";
                                 Parent = right_components;
                                 BackgroundTransparency = 1;
                                 Size = dim2(0, 0, 0, 10);
@@ -1561,14 +1579,49 @@
                                 local input = uis.InputBegan:Wait()
                                 if input.UserInputType == Enum.UserInputType.Keyboard then
                                     cfg.keybind = input.KeyCode
-                                    keybind_button.Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""))
+                                    cfg.keybind_opts.key = input.KeyCode
+                                    keybind_button.Text = "[".. (tostring(cfg.keybind):gsub("Enum.KeyCode.", "")) .."] (".. cfg.keybind_opts.mode ..")"
                                 end 
+                            end)
+
+                            keybind_button.MouseButton2Click:Connect(function()
+                                local modes = {"Toggle", "Hold", "Always"}
+                                local current_mode = cfg.keybind_opts.mode
+                                local next_mode = "Toggle"
+                                
+                                if current_mode == "Toggle" then next_mode = "Hold"
+                                elseif current_mode == "Hold" then next_mode = "Always"
+                                elseif current_mode == "Always" then next_mode = "Toggle"
+                                end
+                                
+                                cfg.keybind_opts.mode = next_mode
+                                keybind_button.Text = "[".. (tostring(cfg.keybind):gsub("Enum.KeyCode.", "")) .."] (".. next_mode ..")"
+                                
+                                -- If switched to Always, trigger immediately
+                                if next_mode == "Always" then
+                                     cfg.enabled = true
+                                     cfg.set(true)
+                                end
                             end)
 
                             library:connection(uis.InputBegan, function(input)
                                 if input.KeyCode == cfg.keybind and not uis:GetFocusedTextBox() then 
-                                    cfg.enabled = not cfg.enabled
-                                    cfg.set(cfg.enabled)
+                                    if cfg.keybind_opts.mode == "Toggle" then
+                                        cfg.enabled = not cfg.enabled
+                                        cfg.set(cfg.enabled)
+                                    elseif cfg.keybind_opts.mode == "Hold" then
+                                        cfg.enabled = true
+                                        cfg.set(true)
+                                    end
+                                end
+                            end)
+                            
+                            library:connection(uis.InputEnded, function(input)
+                                if input.KeyCode == cfg.keybind and not uis:GetFocusedTextBox() then 
+                                    if cfg.keybind_opts.mode == "Hold" then
+                                        cfg.enabled = false
+                                        cfg.set(false)
+                                    end
                                 end
                             end)
                         end
@@ -3027,15 +3080,14 @@
                     end)
 
                     if cfg.keybind then
-                        -- We need to add a keybind label/button to the button.
-                        -- The button structure is: button(TextButton) -> inline -> background -> text(TextButton).
-                        -- We can add it to 'background' (Frame) on the right side.
+                         -- Initialize default mode
+                        cfg.keybind_opts = {mode = "Toggle", key = cfg.keybind} 
                         
                          local keybind_button = library:create("TextButton", {
                                 FontFace = library.font;
                                 TextColor3 = rgb(120, 120, 120);
                                 BorderColor3 = rgb(0, 0, 0);
-                                Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""));
+                                Text = "[".. (tostring(cfg.keybind):gsub("Enum.KeyCode.", "")) .."]";
                                 Parent = background;
                                 BackgroundTransparency = 1;
                                 Size = dim2(0, 0, 1, 0);
@@ -3052,7 +3104,8 @@
                                 local input = uis.InputBegan:Wait()
                                 if input.UserInputType == Enum.UserInputType.Keyboard then
                                     cfg.keybind = input.KeyCode
-                                    keybind_button.Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""))
+                                    cfg.keybind_opts.key = input.KeyCode
+                                    keybind_button.Text = "[".. (tostring(cfg.keybind):gsub("Enum.KeyCode.", "")) .."]"
                                 end 
                             end)
 
@@ -3069,6 +3122,65 @@
             end 
         -- 
     -- 
+
+    -- Persistence System
+        function library:init_persistence()
+            if not isfolder("Y2K_Lib") then makefolder("Y2K_Lib") end
+            if not isfolder("Y2K_Lib/Configs") then makefolder("Y2K_Lib/Configs") end
+            if not isfolder("Y2K_Lib/Themes") then makefolder("Y2K_Lib/Themes") end
+        end
+
+        function library:save_config(name)
+            local json = http:JSONEncode(flags)
+            writefile("Y2K_Lib/Configs/".. name .. ".json", json)
+        end
+
+        function library:load_config(name)
+            if isfile("Y2K_Lib/Configs/".. name .. ".json") then
+                local json = readfile("Y2K_Lib/Configs/".. name .. ".json")
+                local data = http:JSONDecode(json)
+
+                for flag, value in next, data do
+                    if config_flags[flag] then
+                        config_flags[flag](value)
+                    end
+                end
+            end
+        end
+        
+        function library:save_theme(name)
+            local data = {}
+            for k, v in next, themes.preset do
+                if typeof(v) == "Color3" then
+                    data[k] = {r = v.R, g = v.G, b = v.B}
+                end
+            end
+            writefile("Y2K_Lib/Themes/".. name .. ".json", http:JSONEncode(data))
+        end
+
+        function library:load_theme(name)
+             if isfile("Y2K_Lib/Themes/".. name .. ".json") then
+                local data = http:JSONDecode(readfile("Y2K_Lib/Themes/".. name .. ".json"))
+                for k, v in next, data do
+                    local color = Color3.new(v.r, v.g, v.b)
+                    library:update_theme(k, color)
+                end
+            end
+        end
+        
+        function library:autoload()
+             if isfile("Y2K_Lib/Configs/autoload.json") then
+                 library:load_config("autoload")
+             end
+             if isfile("Y2K_Lib/Themes/autoload.json") then
+                 library:load_theme("autoload")
+             end
+        end
+        
+        library:init_persistence()
+        library:autoload()
+    -- 
+
 -- 
 
 return library, notifications
