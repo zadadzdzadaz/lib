@@ -505,11 +505,11 @@
             })
 
             function library:toggle_ui(state)
-                if library.mainwindow then
+                if library.gui then
                     if state ~= nil then
-                        library.mainwindow.Visible = state
+                        library.gui.Enabled = state
                     else
-                        library.mainwindow.Visible = not library.mainwindow.Visible
+                        library.gui.Enabled = not library.gui.Enabled
                     end
                 end
             end
@@ -1656,6 +1656,8 @@
                 -- Functions 
                     function cfg.set(bool)                        
                         f.BackgroundColor3 = bool and themes.preset.accent or themes.preset.f
+                        
+                        flags[cfg.flag] = bool 
 
                         cfg.callback(bool)
 
@@ -3148,6 +3150,27 @@
                     end
                 end
             end
+        end
+
+        function library:delete_config(name)
+            if isfile("Y2K_Lib/Configs/".. name .. ".json") then
+                delfile("Y2K_Lib/Configs/".. name .. ".json")
+            end
+        end
+
+        function library:get_configs()
+            local list = {}
+            if isfolder("Y2K_Lib/Configs") then
+                for _, file in next, listfiles("Y2K_Lib/Configs") do
+                    if file:sub(-5) == ".json" then
+                        local name = file:match("([^\\/]+)%.json$")
+                        if name then
+                            insert(list, name)
+                        end
+                    end
+                end
+            end
+            return list
         end
         
         function library:save_theme(name)
