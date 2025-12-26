@@ -502,8 +502,12 @@
                 IgnoreGuiInset = true,
             })
 
-            function library:toggle_ui()
-                library.gui.Enabled = not library.gui.Enabled
+            function library:toggle_ui(state)
+                if state ~= nil then
+                    library.gui.Enabled = state
+                else
+                    library.gui.Enabled = not library.gui.Enabled
+                end
             end
 
             -- Window
