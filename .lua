@@ -3413,18 +3413,50 @@
                     cfg.model = model:Clone()
                     cfg.model.Parent = items["viewport"]
                     
-                    local modelCFrame, modelSize = cfg.model:GetBoundingBox()
-                    items["camera"].CFrame = modelCFrame * cfg.camera_offset
-                    items["camera"].Focus = modelCFrame
+                    -- Trouver le centre du modèle de manière sûre
+                    local parts = {}
+                    for _, descendant in pairs(cfg.model:GetDescendants()) do
+                        if descendant:IsA("BasePart") then
+                            table.insert(parts, descendant)
+                        end
+                    end
                     
-                    if cfg.rotation_speed > 0 and cfg.model.PrimaryPart then
-                        library:connection(run.RenderStepped, function()
-                            if cfg.model and cfg.model.Parent then
-                                cfg.model:SetPrimaryPartCFrame(
-                                    cfg.model.PrimaryPart.CFrame * angle(0, rad(cfg.rotation_speed), 0)
-                                )
-                            end
-                        end)
+                    if #parts > 0 then
+                        -- Calculer le centre
+                        local minPos = parts[1].Position
+                        local maxPos = parts[1].Position
+                        
+                        for _, part in pairs(parts) do
+                            minPos = vec3(
+                                min(minPos.X, part.Position.X),
+                                min(minPos.Y, part.Position.Y),
+                                min(minPos.Z, part.Position.Z)
+                            )
+                            maxPos = vec3(
+                                max(maxPos.X, part.Position.X),
+                                max(maxPos.Y, part.Position.Y),
+                                max(maxPos.Z, part.Position.Z)
+                            )
+                        end
+                        
+                        local center = (minPos + maxPos) / 2
+                        local modelCFrame = cfr(center)
+                        
+                        items["camera"].CFrame = modelCFrame * cfg.camera_offset
+                        items["camera"].Focus = modelCFrame
+                        
+                        -- Rotation automatique si activée
+                        if cfg.rotation_speed > 0 then
+                            library:connection(run.RenderStepped, function()
+                                if cfg.model and cfg.model.Parent then
+                                    for _, part in pairs(parts) do
+                                        if part and part.Parent then
+                                            part.CFrame = part.CFrame * angle(0, rad(cfg.rotation_speed * 0.01), 0)
+                                        end
+                                    end
+                                end
+                            end)
+                        end
                     end
                 end
             end
