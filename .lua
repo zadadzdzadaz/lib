@@ -83,7 +83,7 @@
 
     local themes = {
         preset = {
-            accent = rgb(160, 80, 255),
+            accent = rgb(0, 162, 255),
             text = rgb(255, 255, 255),
             text_outline = rgb(0, 0, 0),
             a = Color3.fromRGB(10, 10, 12),
@@ -501,6 +501,10 @@
                 ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
                 IgnoreGuiInset = true,
             })
+
+            function library:toggle_ui()
+                library.gui.Enabled = not library.gui.Enabled
+            end
 
             -- Window
                 local a = library:create("Frame", {
@@ -1463,6 +1467,7 @@
                     
                     default = options.value or options.default or false,
                     folding = options.folding or false, 
+                    keybind = options.keybind or nil,
                     callback = options.callback or function() end,
                 }
 
@@ -1531,6 +1536,38 @@
                             HorizontalAlignment = Enum.HorizontalAlignment.Right;
                             SortOrder = Enum.SortOrder.LayoutOrder
                         });
+
+                        if cfg.keybind then 
+                            local keybind_button = library:create("TextButton", {
+                                FontFace = library.font;
+                                TextColor3 = rgb(120, 120, 120);
+                                BorderColor3 = rgb(0, 0, 0);
+                                Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""));
+                                Parent = right_components;
+                                BackgroundTransparency = 1;
+                                Size = dim2(0, 0, 0, 10);
+                                BorderSizePixel = 0;
+                                AutomaticSize = Enum.AutomaticSize.X;
+                                TextSize = 12;
+                                BackgroundColor3 = rgb(255, 255, 255)
+                            });
+
+                            keybind_button.MouseButton1Click:Connect(function()
+                                keybind_button.Text = "..."
+                                local input = uis.InputBegan:Wait()
+                                if input.UserInputType == Enum.UserInputType.Keyboard then
+                                    cfg.keybind = input.KeyCode
+                                    keybind_button.Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""))
+                                end 
+                            end)
+
+                            library:connection(uis.InputBegan, function(input)
+                                if input.KeyCode == cfg.keybind and not uis:GetFocusedTextBox() then 
+                                    cfg.enabled = not cfg.enabled
+                                    cfg.set(cfg.enabled)
+                                end
+                            end)
+                        end
                     -- 
 
                     -- Sub sections
@@ -2019,7 +2056,9 @@
 
             function library:button(options)  
                 local cfg = {
-                    callback = options.callback or function() end 
+                    callback = options.callback or function() end,
+                    name = options.name or "Button",
+                    keybind = options.keybind or nil,
                 }   
 
                 cfg.default = options.value or options.default or options.value or (cfg.multi and {cfg.items[1]}) or cfg.items[1] or "None"
@@ -2931,6 +2970,7 @@
                 local cfg = {
                     name = options.name or "TextBox",
                     callback = options.callback or function() end,
+                    keybind = options.keybind or nil,
                 }
                 
                 -- Instances 
@@ -2981,6 +3021,44 @@
                     text.MouseButton1Click:Connect(function()
                         cfg.callback()
                     end)
+
+                    if cfg.keybind then
+                        -- We need to add a keybind label/button to the button.
+                        -- The button structure is: button(TextButton) -> inline -> background -> text(TextButton).
+                        -- We can add it to 'background' (Frame) on the right side.
+                        
+                         local keybind_button = library:create("TextButton", {
+                                FontFace = library.font;
+                                TextColor3 = rgb(120, 120, 120);
+                                BorderColor3 = rgb(0, 0, 0);
+                                Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""));
+                                Parent = background;
+                                BackgroundTransparency = 1;
+                                Size = dim2(0, 0, 1, 0);
+                                Position = dim2(1, -5, 0, 0);
+                                AnchorPoint = vec2(1, 0);
+                                BorderSizePixel = 0;
+                                AutomaticSize = Enum.AutomaticSize.X;
+                                TextSize = 12;
+                                BackgroundColor3 = rgb(255, 255, 255)
+                            });
+
+                            keybind_button.MouseButton1Click:Connect(function()
+                                keybind_button.Text = "..."
+                                local input = uis.InputBegan:Wait()
+                                if input.UserInputType == Enum.UserInputType.Keyboard then
+                                    cfg.keybind = input.KeyCode
+                                    keybind_button.Text = (tostring(cfg.keybind):gsub("Enum.KeyCode.", ""))
+                                end 
+                            end)
+
+                            library:connection(uis.InputBegan, function(input)
+                                if input.KeyCode == cfg.keybind and not uis:GetFocusedTextBox() then 
+                                    cfg.callback()
+                                end
+                            end)
+
+                    end
                 --
                 
                 return setmetatable(cfg, library)
