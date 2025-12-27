@@ -5186,7 +5186,7 @@ local Library do
                 Name = "\0",
                 Position = UDim2New(0, 12, 0, 12),
                 BorderColor3 = FromRGB(42, 49, 45),
-                Size = UDim2New(0, 200, 1, -24),
+                Size = UDim2New(0, 120, 1, -24),
                 BorderSizePixel = 2,
                 BackgroundColor3 = FromRGB(20, 24, 21)
             })  Items["Side"]:AddToTheme({BackgroundColor3 = "Inline", BorderColor3 = "Outline"})
@@ -5319,9 +5319,9 @@ local Library do
                 Parent = Items["Window"].Instance,
                 Name = "\0",
                 BackgroundTransparency = 1,
-                Position = UDim2New(0, 226, 0, 12),
+                Position = UDim2New(0, 146, 0, 12),
                 BorderColor3 = FromRGB(0, 0, 0),
-                Size = UDim2New(1, -238, 1, -24),
+                Size = UDim2New(1, -158, 1, -24),
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
