@@ -5165,7 +5165,7 @@ local Library do
         local Window = { 
             Logo = Data.Logo or Data.logo or "130991294306142",
             FadeTime = Data.FadeTime or Data.fadetime or 0.4,
-            Size = Data.Size or Data.size or UDim2New(0, 900, 0, 450),
+            Size = Data.Size or Data.size or UDim2New(0, 1000, 0, 500),
 
             Pages = { },
             Items = { },
