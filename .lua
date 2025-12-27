@@ -86,11 +86,13 @@
             accent = rgb(155, 150, 219),
             bg = rgb(14, 14, 16),
             main = rgb(23, 23, 29),
-            outline = rgb(0, 0, 0), -- rgb(23, 23, 29) in Milenium but we need contrast
+            outline = rgb(23, 23, 29),
             text = rgb(255, 255, 255),
-
+            secondary = rgb(22, 22, 24),
+            tertiary = rgb(25, 25, 29),
+        },
         utility = {
-            accent = {BackgroundColor3 = {}, Color = {}, ScrollBarImageColor3 = {}, TextColor3 = {}},
+            accent = {BackgroundColor3 = {}, Color = {}, ScrollBarImageColor3 = {}, TextColor3 = {}, ImageColor3 = {}},
             text = {
                 TextColor3 = {},
                 BackgroundColor3 = {},
