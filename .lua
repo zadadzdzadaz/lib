@@ -83,17 +83,11 @@
 
     local themes = {
         preset = {
-            accent = rgb(0, 162, 255),
+            accent = rgb(155, 150, 219),
+            bg = rgb(14, 14, 16),
+            main = rgb(23, 23, 29),
+            outline = rgb(0, 0, 0), -- rgb(23, 23, 29) in Milenium but we need contrast
             text = rgb(255, 255, 255),
-            text_outline = rgb(0, 0, 0),
-            a = Color3.fromRGB(10, 10, 12),
-            b = Color3.fromRGB(20, 20, 25),
-            c = Color3.fromRGB(30, 30, 40),
-            d = Color3.fromRGB(5, 5, 8),
-            e = Color3.fromRGB(15, 15, 20),
-            f = Color3.fromRGB(50, 45, 60),
-            g = Color3.fromRGB(35, 30, 45),
-        },
 
         utility = {
             accent = {BackgroundColor3 = {}, Color = {}, ScrollBarImageColor3 = {}, TextColor3 = {}},
@@ -496,9 +490,13 @@
                 selected_tab 
             }
 
+            if coregui:FindFirstChild("Y2K_Hub_Main") then
+                coregui:FindFirstChild("Y2K_Hub_Main"):Destroy()
+            end
+
             library.gui = library:create("ScreenGui", {
                 Parent = coregui,
-                Name = "\0",
+                Name = "Y2K_Hub_Main",
                 Enabled = true,
                 ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
                 IgnoreGuiInset = true,
@@ -517,48 +515,15 @@
             -- Window
                 local a = library:create("Frame", {
                     Parent = library.gui;
-                    BackgroundTransparency = 1;
-                    Position = dim2(0.5, -cfg.size.X.Offset / 2, 0.5, -cfg.size.Y.Offset / 2);
-                    BorderColor3 = rgb(0, 0, 0);
+                    BackgroundTransparency = 0;
+                    BackgroundColor3 = themes.preset.bg; -- Milenium BG
                     Size = cfg.size;
+                    Position = dim2(0.5, -cfg.size.X.Offset / 2, 0.5, -cfg.size.Y.Offset / 2);
                     BorderSizePixel = 0;
-                    BackgroundColor3 = rgb(255, 255, 255)
-                }); library:resizify(a); library:draggify(a); a.Position = dim2(0, a.AbsolutePosition.Y, 0, a.AbsolutePosition.Y)
-
-                -- Visual Polish: UIStroke
-                local stroke = library:create("UIStroke", {
-                    Parent = a,
-                    Color = themes.preset.accent,
-                    Thickness = 1,
-                    Transparency = 0.5
                 })
-                -- Ideally we want this stroke to update with theme, so we can hack it into apply_theme or just manual update
-                -- For now, let's leave it static or simple.
-
 
                 library:create("UICorner", {
                     Parent = a,
-                    CornerRadius = dim(0, 6)
-                })
-
-                library:create("UIStroke", {
-                    Parent = a;
-                    LineJoinMode = Enum.LineJoinMode.Miter
-                });	library:apply_theme(UIStroke, "a", "Color")
-                
-                local b = library:create("Frame", {
-                    Parent = a;
-                    BackgroundTransparency = 1;
-                    Position = dim2(0, 1, 0, 1);
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, -2, 1, -2);
-                    BorderSizePixel = 0;
-                    BackgroundColor3 = rgb(56, 56, 56)
-                });	library:apply_theme(b, "b", "BackgroundColor3")
-                
-                library:create("UIStroke", {
-                    Color = rgb(56, 56, 56);
-                    LineJoinMode = Enum.LineJoinMode.Miter;
                     Parent = b;
                     Transparency = 0.25
                 });	library:apply_theme(UIStroke, "b", "Color")
