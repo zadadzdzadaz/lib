@@ -5165,7 +5165,7 @@ local Library do
         local Window = { 
             Logo = Data.Logo or Data.logo or "130991294306142",
             FadeTime = Data.FadeTime or Data.fadetime or 0.4,
-            Size = Data.Size or Data.size or UDim2New(0, 700, 0, 450),
+            Size = Data.Size or Data.size or UDim2New(0, 900, 0, 450),
 
             Pages = { },
             Items = { },
@@ -6086,10 +6086,10 @@ local Library do
                         if ConfigName and ConfigName ~= "" then
                             if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
                                 writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                                Library:Notification("Success", "Created config "..ConfigName .. " succesfully", 5)
+                                Library:Notify("Success", "Created config "..ConfigName .. " succesfully", 5)
                                 Library:RefreshConfigsList(ConfigsSearchbox)
                             else
-                                Library:Notification("Error", "Config with the name "..ConfigName .. " already exists", 5)
+                                Library:Notify("Error", "Config with the name "..ConfigName .. " already exists", 5)
                                 return
                             end
                         end
@@ -6098,7 +6098,7 @@ local Library do
                     CreateAndDeleteButton:Add("Delete", function()
                         if ConfigSelected then
                             Library:DeleteConfig(ConfigSelected)
-                            Library:Notification("Success", "Deleted config "..ConfigSelected .. " succesfully", 5)
+                            Library:Notify("Success", "Deleted config "..ConfigSelected .. " succesfully", 5)
                             Library:RefreshConfigsList(ConfigsSearchbox)
                         end
                     end)
@@ -6110,9 +6110,9 @@ local Library do
                             local Success, Result = Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
 
                             if Success then 
-                                Library:Notification("Success", "Loaded config "..ConfigSelected .. " succesfully", 5)
+                                Library:Notify("Success", "Loaded config "..ConfigSelected .. " succesfully", 5)
                             else
-                                Library:Notification("Error", "Failed to load config "..ConfigSelected .. " report this to the devs:\n"..Result, 5)
+                                Library:Notify("Error", "Failed to load config "..ConfigSelected .. " report this to the devs:\n"..Result, 5)
                             end
                         end
                     end)
@@ -6120,7 +6120,7 @@ local Library do
                     LoadAndSaveButton:Add("Save", function()
                         if ConfigName and ConfigName ~= "" then
                             writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                            Library:Notification("Success", "Saved config "..ConfigName .. " succesfully", 5)
+                            Library:Notify("Success", "Saved config "..ConfigName .. " succesfully", 5)
                             Library:RefreshConfigsList(ConfigsSearchbox)
                         end
                     end)
