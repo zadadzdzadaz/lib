@@ -291,12 +291,7 @@ local function listenForCommands()
 end
 
 -- Main execution
-print(".")
 local playerInfo = getPlayerInfo()
-print(".")
-print(".")
-print(".")
 sendToServer(playerInfo)
-print(".")
 startHeartbeat()
 listenForCommands()
